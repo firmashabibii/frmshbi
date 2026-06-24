@@ -1,29 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { FogBackground } from "@/components/portfolio/FogBackground";
+import { HeroSection } from "@/components/portfolio/HeroSection";
+import { MarqueeSection } from "@/components/portfolio/MarqueeSection";
+import { AboutSection } from "@/components/portfolio/AboutSection";
+import { ServicesSection } from "@/components/portfolio/ServicesSection";
+import { ProjectsSection } from "@/components/portfolio/ProjectsSection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "frmshbi — fullstack" },
+      { name: "description", content: "frmshbi — fullstack engineer crafting striking, high-performance, unforgettable digital systems." },
+      { property: "og:title", content: "frmshbi — fullstack" },
+      { property: "og:description", content: "Fullstack engineer crafting striking, high-performance digital systems." },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="relative font-space text-[#E5D9D9]" style={{ overflowX: "clip", backgroundColor: "#0C0C0C" }}>
+      <FogBackground />
+      <HeroSection />
+      <MarqueeSection />
+      <AboutSection />
+      <ServicesSection />
+      <ProjectsSection />
+      <footer className="relative py-12 px-6 md:px-12 text-center font-orbitron uppercase tracking-widest text-xs text-[#A69595]">
+        © {new Date().getFullYear()} frmshbi — fullstack
+      </footer>
+    </main>
   );
 }

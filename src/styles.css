@@ -4,6 +4,26 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  html, body, #root {
+    background-color: #0C0C0C;
+    color: #E5D9D9;
+  }
+}
+
+.hero-heading {
+  font-family: 'Orbitron', sans-serif;
+  background: linear-gradient(180deg, #FF4D4D 0%, #990000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.55));
+}
+
+.font-orbitron { font-family: 'Orbitron', sans-serif; }
+.font-space { font-family: 'Space Grotesk', sans-serif; }
+
 /*
  * Design system definition.
  *
