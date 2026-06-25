@@ -3,7 +3,7 @@ import { Magnet } from "./Magnet";
 import { ContactButton } from "./ContactButton";
 import skullAsset from "@/assets/tengkorak12.png.asset.json";
 
-const navLinks = ["About", "Projects", "Contact"];
+const navLinks = ["About", "Mastery", "Projects", "Contact"];
 
 export function HeroSection() {
   return (
@@ -46,9 +46,9 @@ export function HeroSection() {
           </FadeIn>
         </Magnet>
 
-        <div className="w-full overflow-hidden px-2">
+        <div className="w-full overflow-hidden px-6 md:px-12">
           <FadeIn delay={0.15} y={40}>
-            <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full text-center text-[10vw] sm:text-[11vw] md:text-[12vw] lg:text-[13.5vw]">
+            <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full text-center text-[6vw] sm:text-[6.5vw] md:text-[7vw] lg:text-[7.5vw]">
               Hi, i&apos;m frmshbi
             </h1>
           </FadeIn>
