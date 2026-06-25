@@ -39,7 +39,7 @@ export function AboutSection() {
               // BIODATA
             </span>
             <span className="font-space text-[10px] sm:text-xs text-[#FF0000]/50 tabular-nums">
-              ID_0x{Math.floor(0xFRM).toString(16).toUpperCase().padStart(4, "0")}
+              ID_0xFRM7
             </span>
           </div>
           <dl className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-y-4 gap-x-6">
