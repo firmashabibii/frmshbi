@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { FogBackground } from "@/components/portfolio/FogBackground";
+import { Navbar } from "@/components/portfolio/Navbar";
 
 function NotFoundComponent() {
   return (
@@ -118,11 +120,29 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsub = router.subscribe("onResolved", () => {
+      if (typeof window !== "undefined") window.scrollTo(0, 0);
+    });
+    return () => unsub();
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <main
+        className="relative font-space text-[#E5D9D9] min-h-screen"
+        style={{ overflowX: "clip", backgroundColor: "#0C0C0C" }}
+      >
+        <FogBackground />
+        <Navbar />
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <footer className="relative py-12 px-6 md:px-12 text-center font-orbitron uppercase tracking-widest text-xs text-[#A69595]">
+          © {new Date().getFullYear()} frmshbi — fullstack
+        </footer>
+      </main>
     </QueryClientProvider>
   );
 }
