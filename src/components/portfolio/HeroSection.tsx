@@ -3,7 +3,7 @@ import { Magnet } from "./Magnet";
 import { ContactButton } from "./ContactButton";
 import skullAsset from "@/assets/tengkorak12.png.asset.json";
 
-const navLinks = ["About", "Price", "Projects", "Contact"];
+const navLinks = ["About", "Projects", "Contact"];
 
 export function HeroSection() {
   return (
@@ -34,7 +34,7 @@ export function HeroSection() {
           strength={3.5}
           activeTransition="transform 0.3s ease-out"
           inactiveTransition="transform 0.5s ease-in-out"
-          className="absolute left-1/2 -translate-x-1/2 z-10 top-1/2 -translate-y-1/2 sm:top-auto sm:translate-y-0 sm:bottom-0"
+          className="absolute left-1/2 -translate-x-1/2 z-10 top-[62%] sm:top-auto sm:bottom-0 sm:mb-4 md:mb-6"
         >
           <FadeIn delay={0.6} y={30}>
             <img
