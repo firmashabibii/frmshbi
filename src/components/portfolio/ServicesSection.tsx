@@ -1,41 +1,65 @@
+import { motion } from "framer-motion";
 import { FadeIn } from "./FadeIn";
 
-const SERVICES = [
-  { n: "01", t: "Frontend Mastery", d: "Crafting lightning-fast, pixel-perfect user interfaces using React, TypeScript, and modern state management paired with fluid interactive animations." },
-  { n: "02", t: "Backend Architecture", d: "Developing high-performance, secure server-side applications and RESTful/GraphQL APIs optimized for speed, security, and scalability." },
-  { n: "03", t: "Database & Systems", d: "Designing relational and non-relational database architectures, optimizing query executions, and ensuring absolute data integrity." },
-  { n: "04", t: "UI/UX Engineering", d: "Bridging the gap between design and clean code, transforming complex design wireframes into structural, accessible, and conversion-focused components." },
-  { n: "05", t: "System Architecture", d: "Blueprinting full-stack applications with optimal design patterns, secure authentication mechanisms, inventory asset tracking solutions, and clean execution loops." },
+const SKILLS = [
+  { label: "REACT / FRONTEND ARCHITECTURE", value: 90 },
+  { label: "NODE.JS / BACKEND ARCHITECTURE", value: 85 },
+  { label: "TYPESCRIPT / TYPE SAFETY", value: 80 },
+  { label: "DATABASE SYSTEMS (SQL/NOSQL)", value: 75 },
+  { label: "TAILWIND CSS / UI ENGINEERING", value: 95 },
 ];
 
 export function ServicesSection() {
   return (
     <section
-      className="relative bg-white text-[#0C0C0C] rounded-t-[30px] sm:rounded-t-[60px] px-6 md:px-12 py-16 sm:py-24"
+      id="mastery"
+      className="relative bg-[#0C0C0C] px-6 md:px-12 py-20 sm:py-28"
     >
-      <h2
-        className="font-orbitron font-black uppercase text-center mb-12 sm:mb-20"
-        style={{ color: "#0C0C0C", fontSize: "clamp(2.5rem, 10vw, 120px)", lineHeight: 1 }}
-      >
-        Services
-      </h2>
-      <div className="max-w-4xl mx-auto">
-        {SERVICES.map((s, i) => (
-          <FadeIn key={s.n} delay={i * 0.05}>
-            <div
-              className="flex flex-col items-start gap-1 md:flex-row md:items-center md:justify-between md:gap-8 py-6 sm:py-8"
-              style={{ borderTop: i === 0 ? "1px solid rgba(12, 12, 12, 0.12)" : "none", borderBottom: "1px solid rgba(12, 12, 12, 0.12)" }}
-            >
-              <div className="flex items-baseline gap-4 md:gap-8 md:w-1/2">
-                <span className="font-orbitron font-black text-5xl sm:text-6xl md:text-7xl text-[#0C0C0C]/90">{s.n}</span>
-                <h3 className="font-orbitron uppercase tracking-wider text-lg sm:text-xl md:text-2xl">{s.t}</h3>
+      <div className="max-w-3xl mx-auto">
+        <FadeIn>
+          <h2
+            className="hero-heading font-orbitron font-black uppercase text-center mb-12 sm:mb-16"
+            style={{ fontSize: "clamp(2rem, 6vw, 72px)", lineHeight: 1 }}
+          >
+            Tech Mastery
+          </h2>
+        </FadeIn>
+
+        <div className="flex flex-col gap-7 sm:gap-8">
+          {SKILLS.map((s, i) => (
+            <FadeIn key={s.label} delay={i * 0.08}>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-baseline justify-between gap-4">
+                  <span className="font-space text-xs sm:text-sm uppercase tracking-wider text-[#FFB3B3]">
+                    {s.label}
+                  </span>
+                  <span className="font-space text-xs sm:text-sm text-[#FF0000] tabular-nums">
+                    {s.value}%
+                  </span>
+                </div>
+                <div
+                  className="relative h-[3px] w-full overflow-hidden"
+                  style={{
+                    backgroundColor: "rgba(255, 0, 0, 0.1)",
+                    border: "1px solid rgba(255, 0, 0, 0.15)",
+                  }}
+                >
+                  <motion.div
+                    className="h-full"
+                    style={{
+                      backgroundColor: "#FF0000",
+                      boxShadow: "0 0 8px #FF0000, 0 0 16px rgba(255, 0, 0, 0.6)",
+                    }}
+                    initial={{ width: "0%" }}
+                    whileInView={{ width: `${s.value}%` }}
+                    viewport={{ once: true, amount: 0.4 }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 + i * 0.08 }}
+                  />
+                </div>
               </div>
-              <p className="font-space text-sm sm:text-base md:text-base text-[#0C0C0C]/70 md:w-1/2 md:text-right leading-relaxed">
-                {s.d}
-              </p>
-            </div>
-          </FadeIn>
-        ))}
+            </FadeIn>
+          ))}
+        </div>
       </div>
     </section>
   );
