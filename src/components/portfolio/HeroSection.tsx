@@ -3,32 +3,10 @@ import { Magnet } from "./Magnet";
 import { ContactButton } from "./ContactButton";
 import skullAsset from "@/assets/tengkorak12.png.asset.json";
 
-const navLinks = ["About", "Mastery", "Projects", "Contact"];
-
 export function HeroSection() {
   return (
-    <section className="relative h-screen w-full flex flex-col overflow-hidden">
-      <FadeIn delay={0} y={-20}>
-        <nav className="flex justify-between items-center px-6 md:px-12 pt-6 md:pt-8">
-          <span className="font-orbitron uppercase tracking-widest text-xs md:text-sm text-[#FFB3B3]">
-            frmshbi
-          </span>
-          <div className="flex gap-5 md:gap-10">
-            {navLinks.map((l) => (
-              <a
-                key={l}
-                href={`#${l.toLowerCase()}`}
-                className="font-orbitron uppercase tracking-widest font-medium text-xs md:text-sm text-[#FFB3B3] transition-colors duration-200 hover:text-[#FF0000]"
-                style={{ transitionDuration: "200ms" }}
-              >
-                {l}
-              </a>
-            ))}
-          </div>
-        </nav>
-      </FadeIn>
-
-      <div className="flex-1 relative flex items-center">
+    <section className="relative min-h-[calc(100vh-80px)] w-full flex flex-col overflow-hidden">
+      <div className="flex-1 relative flex items-center min-h-[70vh]">
         <Magnet
           padding={120}
           strength={3.5}
