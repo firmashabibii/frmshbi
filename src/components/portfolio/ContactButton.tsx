@@ -1,3 +1,5 @@
+import { Github } from "lucide-react";
+
 export function ContactButton() {
   return (
     <button
@@ -25,6 +27,21 @@ export function LiveProjectButton({ href = "#" }: { href?: string }) {
       style={{ filter: "drop-shadow(0 0 8px rgba(255,0,0,0.4))" }}
     >
       Live Project
+    </a>
+  );
+}
+
+export function GithubButton({ href = "#" }: { href?: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="font-orbitron uppercase tracking-widest rounded-full border-2 border-[#FF0000] text-[#FF0000] px-4 py-2 text-xs sm:text-sm inline-flex items-center gap-2 transition-all hover:bg-[#FF0000]/10"
+      style={{ filter: "drop-shadow(0 0 8px rgba(255,0,0,0.4))" }}
+    >
+      <Github className="w-4 h-4" />
+      Github
     </a>
   );
 }

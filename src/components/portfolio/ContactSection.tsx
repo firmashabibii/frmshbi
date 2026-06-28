@@ -1,16 +1,30 @@
-import { Mail, Instagram, MessageSquare } from "lucide-react";
+import { Mail, Instagram, MessageSquare, Github } from "lucide-react";
 import { FadeIn } from "./FadeIn";
 
 const inputClass =
   "w-full bg-transparent font-space text-[#E5D9D9] placeholder:text-[#6b5959] py-3 px-1 border-b border-[#FF0000]/30 outline-none transition-all duration-200 focus:border-[#FF0000] focus:[box-shadow:0_4px_18px_-2px_rgba(255,0,0,0.55)]";
 
 const socials = [
-  { label: "Email", icon: Mail, href: "mailto:hello@frmshbi.dev" },
-  { label: "Instagram", icon: Instagram, href: "https://instagram.com" },
-  { label: "WhatsApp", icon: MessageSquare, href: "https://wa.me/" },
+  { label: "Email", icon: Mail, href: "mailto:firmashabibi71@gmail.com" },
+  { label: "Instagram", icon: Instagram, href: "https://www.instagram.com/frmshbi/" },
+  { label: "WhatsApp", icon: MessageSquare, href: "https://wa.me/6289518476014/" },
+  { label: "Github", icon: Github, href: "https://github.com/firmashabibii" },
 ];
 
 export function ContactSection() {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const message = formData.get("message") as string;
+
+    const subject = encodeURIComponent(`Message from Portfolio - ${name}`);
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+
+    window.location.href = `mailto:firmashabibi71@gmail.com?subject=${subject}&body=${body}`;
+  };
+
   return (
     <section id="contact" className="relative px-6 sm:px-12 py-24 md:py-32">
       <div className="max-w-6xl mx-auto">
@@ -27,7 +41,7 @@ export function ContactSection() {
           {/* Left: Form */}
           <FadeIn y={30} delay={0.1}>
             <form
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={handleSubmit}
               className="flex flex-col gap-6"
             >
               <input className={inputClass} type="text" name="name" placeholder="Name" required />

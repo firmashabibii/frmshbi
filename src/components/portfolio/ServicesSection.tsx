@@ -2,11 +2,10 @@ import { motion } from "framer-motion";
 import { FadeIn } from "./FadeIn";
 
 const SKILLS = [
-  { label: "REACT / FRONTEND ARCHITECTURE", value: 90 },
-  { label: "NODE.JS / BACKEND ARCHITECTURE", value: 85 },
-  { label: "TYPESCRIPT / TYPE SAFETY", value: 80 },
+  { label: "REACT / FRONTEND ARCHITECTURE", value: 80 },
+  { label: "NODE.JS / BACKEND ARCHITECTURE", value: 65 },
   { label: "DATABASE SYSTEMS (SQL/NOSQL)", value: 75 },
-  { label: "TAILWIND CSS / UI ENGINEERING", value: 95 },
+  { label: "TAILWIND CSS / UI ENGINEERING", value: 70 },
 ];
 
 export function ServicesSection() {
