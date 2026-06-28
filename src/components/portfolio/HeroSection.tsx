@@ -1,7 +1,7 @@
 import { motion, Variants } from "framer-motion";
 import { Magnet } from "./Magnet";
 import { ContactButton } from "./ContactButton";
-import logoAsset from "@/assets/logo.png";
+import logoAsset from "@/assets/realmadrid.png";
 
 const titleVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
