@@ -1,6 +1,6 @@
 import { AnimatedText } from "./AnimatedText";
 import { FadeIn } from "./FadeIn";
-import profileImg from "@/assets/profile.png";
+import profileImg from "@/assets/mass.jpg";
 
 const BIODATA = [
   { k: "FULL NAME", v: "FIRMAS HABIBI" },
