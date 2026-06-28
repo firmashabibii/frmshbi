@@ -1,27 +1,34 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { LiveProjectButton } from "./ContactButton";
-
-const IMG = "https://motionsites.ai/assets/";
+import { GithubButton } from "./ContactButton";
+import kampungbakauImg from "@/assets/kampungbakau.png";
+import myalquranImg from "@/assets/myalquran.png";
+import koslifeImg from "@/assets/koslife.png";
 
 const PROJECTS = [
   {
     n: "01",
-    kind: "Client",
-    name: "Nexora Platform",
-    images: [`${IMG}hero-nexora-preview-cx5HmUgo.gif`, `${IMG}hero-codenest-preview-Cgppc2qV.gif`, `${IMG}hero-stellar-ai-preview-D3HL6bw1.gif`],
+    kind: "Personal Project",
+    name: "Kampung Bakau Ecotourism",
+    description: "A web application built to support ecotourism and mangrove preservation at Kampung Bakau, providing information and an interactive platform for visitors.",
+    github: "https://github.com/firmashabibii/kampungbakau23",
+    image: kampungbakauImg,
   },
   {
     n: "02",
-    kind: "Personal",
-    name: "Orbit Web3",
-    images: [`${IMG}hero-orbit-web3-preview-BXt4OttD.gif`, `${IMG}hero-planet-orbit-preview-DWAP8Z1P.gif`, `${IMG}hero-space-voyage-preview-eECLH3Yc.gif`],
+    kind: "Personal Project",
+    name: "MyAlQuran",
+    description: "An interactive digital Al-Quran web application with a search interface and reading aids designed for a seamless mobile and desktop experience.",
+    github: "https://github.com/firmashabibii/myalquran",
+    image: myalquranImg,
   },
   {
     n: "03",
-    kind: "Client",
-    name: "Luminex Suite",
-    images: [`${IMG}hero-luminex-preview-CxOP7ce6.gif`, `${IMG}hero-aethera-preview-DknSlcTa.gif`, `${IMG}hero-celestia-preview-0yO3jXO8.gif`],
+    kind: "Personal Project",
+    name: "KosLife",
+    description: "A digital management platform for boarding houses (kos), streamlining room bookings, search filters, and information management for residents.",
+    github: "https://github.com/firmashabibii/koslife",
+    image: koslifeImg,
   },
 ];
 
@@ -36,7 +43,13 @@ interface CardProps {
 function ProjectCard({ project, index, progress, range, total }: CardProps) {
   const scale = useTransform(progress, range, [1, 1 - (total - index) * 0.04]);
   return (
-    <div className="sticky top-20 md:top-28" style={{ paddingTop: index * 20 }}>
+    <div
+      className="sticky"
+      style={{
+        top: `calc(70px + ${index * 24}px)`,
+        zIndex: index + 1,
+      }}
+    >
       <motion.div
         style={{ scale }}
         className="rounded-[24px] sm:rounded-[40px] border-2 border-[#FF0000] bg-[#0C0C0C] p-4 sm:p-6"
@@ -55,16 +68,22 @@ function ProjectCard({ project, index, progress, range, total }: CardProps) {
                 <h3 className="font-orbitron uppercase tracking-wide text-lg sm:text-xl md:text-2xl text-white">{project.name}</h3>
               </div>
             </div>
-            <LiveProjectButton />
+            <GithubButton href={project.github} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 sm:gap-4">
-            <div className="md:col-span-2 flex flex-col gap-3 sm:gap-4">
-              <img src={project.images[0]} alt={project.name} loading="lazy" className="w-full h-48 sm:h-56 object-cover rounded-2xl" />
-              <img src={project.images[1]} alt={project.name} loading="lazy" className="w-full h-48 sm:h-56 object-cover rounded-2xl" />
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 pt-4 border-t border-[#FF0000]/15">
+            <div className="md:col-span-2 flex flex-col justify-between gap-4">
+              <p className="font-space font-light text-sm sm:text-base text-[#D4C5C5] leading-relaxed">
+                {project.description}
+              </p>
             </div>
-            <div className="md:col-span-3">
-              <img src={project.images[2]} alt={project.name} loading="lazy" className="w-full h-full min-h-[200px] max-h-[480px] object-cover rounded-2xl" />
+            <div className="md:col-span-3 overflow-hidden rounded-2xl border border-[#FF0000]/10">
+              <img
+                src={project.image}
+                alt={project.name}
+                loading="lazy"
+                className="w-full h-48 sm:h-64 md:h-[280px] object-cover object-top rounded-2xl hover:scale-[1.03] transition-transform duration-500 bg-neutral-900"
+              />
             </div>
           </div>
         </div>
@@ -88,14 +107,12 @@ export function ProjectsSection() {
       <h2 className="hero-heading font-black uppercase text-center mb-12 sm:mb-20 leading-none" style={{ fontSize: "clamp(2.5rem, 10vw, 120px)" }}>
         Projects
       </h2>
-      <div ref={containerRef} className="relative max-w-6xl mx-auto">
+      <div ref={containerRef} className="relative max-w-6xl mx-auto flex flex-col gap-12 sm:gap-20 md:gap-32">
         {PROJECTS.map((p, i) => {
           const start = i / PROJECTS.length;
           const end = 1;
           return (
-            <div key={p.n} className="h-[80vh]">
-              <ProjectCard project={p} index={i} progress={scrollYProgress} range={[start, end]} total={PROJECTS.length} />
-            </div>
+            <ProjectCard key={p.n} project={p} index={i} progress={scrollYProgress} range={[start, end]} total={PROJECTS.length} />
           );
         })}
       </div>
