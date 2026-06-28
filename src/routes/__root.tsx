@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { FogBackground } from "@/components/portfolio/FogBackground";
 import { Navbar } from "@/components/portfolio/Navbar";
 
@@ -39,9 +38,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -86,11 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "frmshbi — fullstack engineer crafting striking, high-performance digital systems." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "frmshbi — fullstack" },
       { name: "twitter:description", content: "frmshbi — fullstack engineer crafting striking, high-performance digital systems." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7f695c5f-3a9c-4c21-a0ae-2fb2e2adef8c/id-preview-22f1790c--35aa06fb-30a6-420e-9e8d-7869899d244e.lovable.app-1782349207212.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7f695c5f-3a9c-4c21-a0ae-2fb2e2adef8c/id-preview-22f1790c--35aa06fb-30a6-420e-9e8d-7869899d244e.lovable.app-1782349207212.png" },
+      { property: "og:image", content: "https://github.com/firmashabibii.png" },
+      { name: "twitter:image", content: "https://github.com/firmashabibii.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
