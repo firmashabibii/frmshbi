@@ -78,7 +78,7 @@ export function MarqueeSection() {
       ref={sectionRef}
       className="relative pt-16 sm:pt-24 md:pt-32 pb-8 overflow-hidden"
       style={{
-        background: "#0C0C0C",
+        background: "#080B10",
         ["--tile-w" as string]: "260px",
         ["--tile-h" as string]: "170px",
       }}

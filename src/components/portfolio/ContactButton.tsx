@@ -1,19 +1,21 @@
 import { Github } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 export function ContactButton() {
   return (
-    <button
-      className="font-orbitron uppercase tracking-widest rounded-full text-xs sm:text-sm px-6 py-2.5 sm:px-9 sm:py-3.5 text-white border-2 border-[#FF0000] transition-transform hover:scale-[1.03]"
+    <Link
+      to="/contact"
+      className="font-orbitron uppercase tracking-widest rounded-full text-xs sm:text-sm px-6 py-2.5 sm:px-9 sm:py-3.5 text-white border-2 border-[#00d2ff] transition-all duration-300 hover:scale-[1.03] inline-flex items-center justify-center font-bold tracking-wider"
       style={{
         background:
-          "linear-gradient(123deg, #3A0000 7%, #FF0000 37%, #990000 72%, #1A0000 100%)",
+          "linear-gradient(135deg, #0066b1 0%, #00d2ff 50%, #fdfdfd 100%)",
         boxShadow:
-          "0px 4px 10px rgba(255, 0, 0, 0.25), 4px 4px 12px #CC0000 inset",
+          "0px 4px 18px rgba(0, 210, 255, 0.4), inset 0px 2px 8px rgba(253, 253, 253, 0.5)",
         outlineOffset: "-3px",
       }}
     >
       Contact Me
-    </button>
+    </Link>
   );
 }
 
@@ -23,8 +25,8 @@ export function LiveProjectButton({ href = "#" }: { href?: string }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="font-orbitron uppercase tracking-widest rounded-full border-2 border-[#FF0000] text-[#FF0000] px-4 py-2 text-xs sm:text-sm inline-flex items-center transition-all hover:bg-[#FF0000]/10"
-      style={{ filter: "drop-shadow(0 0 8px rgba(255,0,0,0.4))" }}
+      className="font-orbitron uppercase tracking-widest rounded-full border-2 border-[#00d2ff] text-[#00d2ff] px-4 py-2 text-xs sm:text-sm inline-flex items-center transition-all hover:bg-[#00d2ff]/10 hover:text-[#fdfdfd] hover:border-[#fdfdfd]"
+      style={{ filter: "drop-shadow(0 0 8px rgba(0,210,255,0.45))" }}
     >
       Live Project
     </a>
@@ -37,8 +39,8 @@ export function GithubButton({ href = "#" }: { href?: string }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="font-orbitron uppercase tracking-widest rounded-full border-2 border-[#FF0000] text-[#FF0000] px-4 py-2 text-xs sm:text-sm inline-flex items-center gap-2 transition-all hover:bg-[#FF0000]/10"
-      style={{ filter: "drop-shadow(0 0 8px rgba(255,0,0,0.4))" }}
+      className="font-orbitron uppercase tracking-widest rounded-full border-2 border-[#00d2ff] text-[#00d2ff] px-4 py-2 text-xs sm:text-sm inline-flex items-center gap-2 transition-all hover:bg-[#00d2ff]/10 hover:text-[#fdfdfd] hover:border-[#fdfdfd]"
+      style={{ filter: "drop-shadow(0 0 8px rgba(0,210,255,0.45))" }}
     >
       <Github className="w-4 h-4" />
       Github

@@ -84,8 +84,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "frmshbi — fullstack" },
       { name: "twitter:description", content: "frmshbi — fullstack engineer crafting striking, high-performance digital systems." },
-      { property: "og:image", content: "https://github.com/firmashabibii.png" },
-      { name: "twitter:image", content: "https://github.com/firmashabibii.png" },
+      { property: "og:image", content: "/favicon.png" },
+      { name: "twitter:image", content: "/favicon.png" },
     ],
     links: [
       { rel: "icon", type: "image/png", href: "/favicon.png" },
@@ -132,14 +132,14 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <main
-        className="relative font-space text-[#E5D9D9] min-h-screen"
-        style={{ overflowX: "clip", backgroundColor: "#0C0C0C" }}
+        className="relative font-space text-[#E2E8F0] min-h-screen"
+        style={{ overflowX: "clip", backgroundColor: "#080B10" }}
       >
         <FogBackground />
         <Navbar />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
-        <footer className="relative py-12 px-6 md:px-12 text-center font-orbitron uppercase tracking-widest text-xs text-[#A69595]">
+        <footer className="relative py-12 px-6 md:px-12 text-center font-orbitron uppercase tracking-widest text-xs text-[#94A3B8]">
           © {new Date().getFullYear()} frmshbi — fullstack
         </footer>
       </main>

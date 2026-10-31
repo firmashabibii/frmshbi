@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { GithubButton } from "./ContactButton";
+import { GithubButton, LiveProjectButton } from "./ContactButton";
 import kampungbakauImg from "@/assets/kampungbakau.png";
 import myalquranImg from "@/assets/myalquran.png";
-import koslifeImg from "@/assets/koslife.png";
+import dtwijayaImg from "@/assets/dtwijaya.jpg";
 
 const PROJECTS = [
   {
@@ -12,6 +12,7 @@ const PROJECTS = [
     name: "Kampung Bakau Ecotourism",
     description: "A web application built to support ecotourism and mangrove preservation at Kampung Bakau, providing information and an interactive platform for visitors.",
     github: "https://github.com/firmashabibii/kampungbakau23",
+    live: "",
     image: kampungbakauImg,
   },
   {
@@ -20,15 +21,17 @@ const PROJECTS = [
     name: "MyAlQuran",
     description: "An interactive digital Al-Quran web application with a search interface and reading aids designed for a seamless mobile and desktop experience.",
     github: "https://github.com/firmashabibii/myalquran",
+    live: "",
     image: myalquranImg,
   },
   {
     n: "03",
-    kind: "Personal Project",
-    name: "KosLife",
-    description: "A digital management platform for boarding houses (kos), streamlining room bookings, search filters, and information management for residents.",
-    github: "https://github.com/firmashabibii/koslife",
-    image: koslifeImg,
+    kind: "Inventory Management System",
+    name: "DT. Wijaya Celluler",
+    description: "Sistem inventaris konter handphone terpadu untuk DT. Wijaya Celluler. Mengelola katalog produk handphone & aksesoris, pencatatan stok keluar-masuk, serta otentikasi login admin yang aman dan efisien.",
+    github: "https://github.com/firmashabibii/dtwijaya-celuler",
+    live: "",
+    image: dtwijayaImg,
   },
 ];
 
@@ -52,32 +55,35 @@ function ProjectCard({ project, index, progress, range, total }: CardProps) {
     >
       <motion.div
         style={{ scale }}
-        className="rounded-[24px] sm:rounded-[40px] border-2 border-[#FF0000] bg-[#0C0C0C] p-4 sm:p-6"
+        className="rounded-[24px] sm:rounded-[40px] border-2 border-[#00d2ff]/70 bg-[#090D12] p-4 sm:p-6 shadow-2xl"
       >
         <div
           className="rounded-[18px] sm:rounded-[32px]"
-          style={{ boxShadow: "0 0 20px rgba(255, 0, 0, 0.15)" }}
+          style={{ boxShadow: "0 0 25px rgba(0, 210, 255, 0.15), inset 0 0 15px rgba(0, 102, 177, 0.05)" }}
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 sm:pb-6">
             <div className="flex items-center gap-4 sm:gap-6">
-              <span className="font-orbitron font-black text-5xl sm:text-6xl md:text-7xl text-[#FF0000]" style={{ filter: "drop-shadow(0 0 10px rgba(255,0,0,0.4))" }}>
+              <span className="font-orbitron font-black text-5xl sm:text-6xl md:text-7xl text-[#00d2ff]" style={{ filter: "drop-shadow(0 0 14px rgba(0,210,255,0.5))" }}>
                 {project.n}
               </span>
               <div className="flex flex-col gap-1">
-                <span className="font-space text-xs uppercase tracking-widest text-[#A69595]">{project.kind}</span>
-                <h3 className="font-orbitron uppercase tracking-wide text-lg sm:text-xl md:text-2xl text-white">{project.name}</h3>
+                <span className="font-space text-xs uppercase tracking-widest text-[#999999]">{project.kind}</span>
+                <h3 className="font-orbitron uppercase tracking-wide text-lg sm:text-xl md:text-2xl text-[#fdfdfd] font-bold">{project.name}</h3>
               </div>
             </div>
-            <GithubButton href={project.github} />
+            <div className="flex items-center gap-3 flex-wrap">
+              {project.live && <LiveProjectButton href={project.live} />}
+              {project.github && <GithubButton href={project.github} />}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 pt-4 border-t border-[#FF0000]/15">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 pt-4 border-t border-[#00d2ff]/20">
             <div className="md:col-span-2 flex flex-col justify-between gap-4">
-              <p className="font-space font-light text-sm sm:text-base text-[#D4C5C5] leading-relaxed">
+              <p className="font-space font-light text-sm sm:text-base text-[#CBD5E1] leading-relaxed">
                 {project.description}
               </p>
             </div>
-            <div className="md:col-span-3 overflow-hidden rounded-2xl border border-[#FF0000]/10">
+            <div className="md:col-span-3 overflow-hidden rounded-2xl border border-[#00d2ff]/20">
               <img
                 src={project.image}
                 alt={project.name}
@@ -102,7 +108,7 @@ export function ProjectsSection() {
   return (
     <section
       id="projects"
-      className="relative bg-[#0C0C0C] rounded-t-[30px] sm:rounded-t-[60px] -mt-8 sm:-mt-12 z-10 px-6 md:px-12 py-16 sm:py-24"
+      className="relative rounded-t-[30px] sm:rounded-t-[60px] -mt-8 sm:-mt-12 z-10 px-6 md:px-12 py-16 sm:py-24"
     >
       <h2 className="hero-heading font-black uppercase text-center mb-12 sm:mb-20 leading-none" style={{ fontSize: "clamp(2.5rem, 10vw, 120px)" }}>
         Projects
