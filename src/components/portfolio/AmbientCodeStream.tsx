@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-// Authentic fullstack developer tokens, system keywords, and syntax
+// Curated authentic fullstack developer tokens & system keywords
 const CODE_TOKENS = [
   "const", "async", "await", "function", "return", "import", "export",
   "interface", "type", "0x4F", "0xFF", "0x7F", "0x1A", "200", "404", "500",
@@ -24,13 +24,12 @@ export function AmbientCodeStream() {
     let height = (canvas.height = window.innerHeight);
 
     const isMobile = window.innerWidth < 768;
-    const fontSize = isMobile ? 12 : 14;
-    const colWidth = isMobile ? 22 : 26;
+    const fontSize = isMobile ? 11 : 13;
+    // Wider column spacing creates generous, breathable gaps between streams
+    const colWidth = isMobile ? 34 : 46;
     let cols = Math.floor(width / colWidth);
 
-    // Track the vertical Y index (in rows) of each column
     let drops: number[] = [];
-    // Speed multiplier per column for organic parallax depth
     let speeds: number[] = [];
 
     const initStreams = () => {
@@ -41,12 +40,10 @@ export function AmbientCodeStream() {
       drops = [];
       speeds = [];
       for (let i = 0; i < cols; i++) {
-        // Distribute drops across the entire screen right from the start
         drops[i] = Math.floor(Math.random() * (height / fontSize));
-        speeds[i] = 0.25 + Math.random() * 0.25; // Calm, slow, elegant speed
+        speeds[i] = 0.2 + Math.random() * 0.22; // Calm, hypnotic slow speed
       }
 
-      // Initial pitch dark fill
       ctx.fillStyle = "#080B10";
       ctx.fillRect(0, 0, width, height);
     };
@@ -61,7 +58,7 @@ export function AmbientCodeStream() {
     window.addEventListener("resize", handleResize);
 
     let lastTime = performance.now();
-    const FPS_INTERVAL = 1000 / 30; // 30 FPS smooth & lightweight
+    const FPS_INTERVAL = 1000 / 30; // 30 FPS
 
     const render = (currentTime: number) => {
       animId = requestAnimationFrame(render);
@@ -72,37 +69,31 @@ export function AmbientCodeStream() {
       if (elapsed < FPS_INTERVAL) return;
       lastTime = currentTime - (elapsed % FPS_INTERVAL);
 
-      // Smooth trailing fade into background (#080B10) with gentle persistence
-      ctx.fillStyle = "rgba(8, 11, 16, 0.05)";
+      // Smooth trailing fade
+      ctx.fillStyle = "rgba(8, 11, 16, 0.055)";
       ctx.fillRect(0, 0, width, height);
 
       ctx.font = `${fontSize}px "Space Grotesk", "Orbitron", monospace`;
       ctx.textAlign = "center";
 
       for (let i = 0; i < cols; i++) {
-        // 1. Pick a random code token
         const token = CODE_TOKENS[Math.floor(Math.random() * CODE_TOKENS.length)];
         const x = i * colWidth + colWidth / 2;
         const y = Math.floor(drops[i]) * fontSize;
 
-        // 2. Draw glowing head character
-        // Occasional bright white-cyan spark at head
-        const isBrightLead = Math.random() > 0.82;
+        const isBrightLead = Math.random() > 0.85;
         ctx.fillStyle = isBrightLead ? "#ffffff" : "#00d2ff";
         ctx.shadowColor = "#00d2ff";
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 5;
         ctx.fillText(token, x, y);
 
-        // Reset shadow for performance
         ctx.shadowBlur = 0;
 
-        // 3. Advance drop calmly
         drops[i] += speeds[i];
 
-        // 4. Reset drop to top with randomized delay when it hits the bottom
         if (y > height && Math.random() > 0.98) {
           drops[i] = -Math.floor(Math.random() * 12);
-          speeds[i] = 0.25 + Math.random() * 0.25;
+          speeds[i] = 0.2 + Math.random() * 0.22;
         }
       }
     };
@@ -120,7 +111,13 @@ export function AmbientCodeStream() {
     <canvas
       ref={canvasRef}
       className="pointer-events-none fixed inset-0 z-0 w-full h-full select-none"
-      style={{ opacity: 0.38 }}
+      style={{
+        opacity: 0.26,
+        maskImage:
+          "radial-gradient(ellipse 65% 55% at 50% 50%, transparent 22%, rgba(0, 0, 0, 0.35) 55%, black 85%)",
+        WebkitMaskImage:
+          "radial-gradient(ellipse 65% 55% at 50% 50%, transparent 22%, rgba(0, 0, 0, 0.35) 55%, black 85%)",
+      }}
       aria-hidden="true"
     />
   );
