@@ -1,15 +1,7 @@
 import { motion, Variants } from "framer-motion";
 import { ContactButton } from "./ContactButton";
 import { FloatingWaterLogo } from "./FloatingWaterLogo";
-
-const titleVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.8, delay: 0.15, ease: "easeOut" } 
-  }
-};
+import { AnimatedHeroTitle } from "./AnimatedHeroTitle";
 
 const descVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -35,16 +27,9 @@ export function HeroSection() {
       {/* 1. Full-Surface Liquid Water Canvas & Roaming FH Logo (Mobile & Desktop) */}
       <FloatingWaterLogo />
 
-      {/* 2. Top Title Header */}
-      <div className="relative z-10 w-full overflow-hidden px-6 md:px-12 pt-6 sm:pt-10 pointer-events-none">
-        <motion.h1
-          variants={titleVariants}
-          initial="hidden"
-          animate="visible"
-          className="hero-heading font-black uppercase tracking-tight leading-none whitespace-normal sm:whitespace-nowrap w-full text-center text-4xl sm:text-[6.5vw] md:text-[7vw] lg:text-[7.5vw]"
-        >
-          Hi, i&apos;m frmshbi
-        </motion.h1>
+      {/* 2. Top Title Header with Interactive Cyber Decode & Physics Animation */}
+      <div className="relative z-10 w-full overflow-hidden px-6 md:px-12 pt-6 sm:pt-10 flex justify-center pointer-events-none">
+        <AnimatedHeroTitle />
       </div>
 
       {/* Middle open water space for roaming */}
