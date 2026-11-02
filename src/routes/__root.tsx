@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { FogBackground } from "@/components/portfolio/FogBackground";
 import { Navbar } from "@/components/portfolio/Navbar";
+import { CyberTerminalModal } from "@/components/portfolio/CyberTerminalModal";
 
 function NotFoundComponent() {
   return (
@@ -144,6 +145,7 @@ function RootComponent() {
         <Navbar />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <CyberTerminalModal />
         <footer className="relative py-12 px-6 md:px-12 text-center font-orbitron uppercase tracking-widest text-xs text-[#94A3B8]">
           © {new Date().getFullYear()} frmshbi — fullstack
         </footer>
