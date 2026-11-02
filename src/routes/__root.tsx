@@ -10,6 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { AmbientCodeStream } from "@/components/portfolio/AmbientCodeStream";
 import { FogBackground } from "@/components/portfolio/FogBackground";
 import { Navbar } from "@/components/portfolio/Navbar";
 import { CyberTerminalModal } from "@/components/portfolio/CyberTerminalModal";
@@ -141,6 +142,7 @@ function RootComponent() {
         className="relative font-space text-[#E2E8F0] min-h-screen"
         style={{ overflowX: "clip", backgroundColor: "#080B10" }}
       >
+        <AmbientCodeStream />
         <FogBackground />
         <Navbar />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
