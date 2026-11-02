@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, X, Volume2, VolumeX, CornerDownLeft, Play, ShieldAlert, Award } from "lucide-react";
+import { useRouterState } from "@tanstack/react-router";
 
 interface HistoryItem {
   id: string;
@@ -90,6 +91,9 @@ function evaluateGuess(target: string, guess: string) {
 }
 
 export function CyberTerminalModal() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
+
   const [isOpen, setIsOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [inputVal, setInputVal] = useState("");
@@ -111,6 +115,13 @@ export function CyberTerminalModal() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const outputEndRef = useRef<HTMLDivElement>(null);
+
+  // Listen for open-cyber-terminal custom event
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener("open-cyber-terminal", handleOpen);
+    return () => window.removeEventListener("open-cyber-terminal", handleOpen);
+  }, []);
 
   // Auto-scroll output to bottom
   useEffect(() => {
@@ -545,32 +556,34 @@ export function CyberTerminalModal() {
 
   return (
     <>
-      {/* 1. Floating Cyber HUD Trigger (Bottom Right) */}
-      <div className="fixed bottom-5 right-5 sm:bottom-7 sm:right-7 z-40 pointer-events-auto">
-        <motion.button
-          onClick={() => setIsOpen(true)}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.94 }}
-          className="group relative flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-[#080B10]/90 backdrop-blur-xl border border-[#00d2ff]/40 shadow-[0_0_22px_rgba(0,210,255,0.3)] hover:border-[#00d2ff] hover:shadow-[0_0_35px_rgba(0,210,255,0.6)] transition-all cursor-pointer"
-          title="Buka Cyber Terminal (Ctrl + K)"
-        >
-          {/* Animated pulse halo */}
-          <span className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-[#0066b1] via-[#00d2ff] to-[#fdfdfd] opacity-25 blur group-hover:opacity-75 transition duration-500 animate-pulse" />
-          
-          <div className="relative flex items-center gap-2 z-10">
-            <div className="relative flex items-center justify-center w-5 h-5 rounded-full bg-[#00d2ff]/20 text-[#00d2ff]">
-              <Terminal className="w-3.5 h-3.5" />
-              <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />
+      {/* 1. Floating Cyber HUD Trigger on Subpages (Bottom Right) */}
+      {!isHome && (
+        <div className="fixed bottom-5 right-5 sm:bottom-7 sm:right-7 z-40 pointer-events-auto">
+          <motion.button
+            onClick={() => setIsOpen(true)}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.94 }}
+            className="group relative flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-[#080B10]/90 backdrop-blur-xl border border-[#00d2ff]/40 shadow-[0_0_22px_rgba(0,210,255,0.3)] hover:border-[#00d2ff] hover:shadow-[0_0_35px_rgba(0,210,255,0.6)] transition-all cursor-pointer"
+            title="Buka Cyber Terminal (Ctrl + K)"
+          >
+            {/* Animated pulse halo */}
+            <span className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-[#0066b1] via-[#00d2ff] to-[#fdfdfd] opacity-25 blur group-hover:opacity-75 transition duration-500 animate-pulse" />
+            
+            <div className="relative flex items-center gap-2 z-10">
+              <div className="relative flex items-center justify-center w-5 h-5 rounded-full bg-[#00d2ff]/20 text-[#00d2ff]">
+                <Terminal className="w-3.5 h-3.5" />
+                <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />
+              </div>
+              <span className="font-orbitron font-bold text-xs uppercase tracking-wider text-slate-200 group-hover:text-cyan-300">
+                Terminal
+              </span>
+              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-cyan-300 bg-white/10 rounded border border-white/20">
+                Ctrl K
+              </kbd>
             </div>
-            <span className="font-orbitron font-bold text-xs uppercase tracking-wider text-slate-200 group-hover:text-cyan-300">
-              Terminal
-            </span>
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-cyan-300 bg-white/10 rounded border border-white/20">
-              Ctrl K
-            </kbd>
-          </div>
-        </motion.button>
-      </div>
+          </motion.button>
+        </div>
+      )}
 
       {/* 2. Fullscreen Cyber Terminal Modal */}
       <AnimatePresence>

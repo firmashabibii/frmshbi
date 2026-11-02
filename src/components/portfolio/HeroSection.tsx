@@ -1,5 +1,5 @@
 import { motion, Variants } from "framer-motion";
-import { ContactButton } from "./ContactButton";
+import { ContactButton, TerminalButton } from "./ContactButton";
 import { FloatingWaterLogo } from "./FloatingWaterLogo";
 import { AnimatedHeroTitle } from "./AnimatedHeroTitle";
 
@@ -36,7 +36,8 @@ export function HeroSection() {
       <div className="flex-1 pointer-events-none" />
 
       {/* 3. Bottom Bio & CTA Area */}
-      <div className="relative z-20 flex flex-col gap-6 md:flex-row md:justify-between md:items-end pb-6 md:pb-10 px-6 md:px-12 pointer-events-none">
+      <div className="relative z-20 flex flex-col gap-6 md:flex-row md:items-end md:justify-between pb-6 md:pb-10 px-6 md:px-12 pointer-events-none">
+        {/* Left: Bio Text */}
         <motion.div 
           variants={descVariants}
           initial="hidden"
@@ -50,14 +51,29 @@ export function HeroSection() {
             a fullstack engineer driven by crafting striking, high-performance, and unforgettable digital systems
           </p>
         </motion.div>
-        <motion.div 
-          variants={buttonVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full md:w-auto flex justify-center md:justify-start pointer-events-auto"
-        >
-          <ContactButton />
-        </motion.div>
+
+        {/* Buttons: On mobile side-by-side in center / On desktop Terminal in exact center & Contact Me on right */}
+        <div className="w-full md:w-auto flex flex-row items-center justify-center gap-3 sm:gap-4 md:contents">
+          {/* Center: Terminal Button (Sejajar dengan Contact Me di Tengah) */}
+          <motion.div
+            variants={buttonVariants}
+            initial="hidden"
+            animate="visible"
+            className="md:absolute md:left-1/2 md:-translate-x-1/2 md:bottom-6 lg:bottom-10 flex justify-center pointer-events-auto"
+          >
+            <TerminalButton />
+          </motion.div>
+
+          {/* Right: Contact Me Button */}
+          <motion.div 
+            variants={buttonVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex justify-center md:justify-end pointer-events-auto"
+          >
+            <ContactButton />
+          </motion.div>
+        </div>
       </div>
     </section>
   );
