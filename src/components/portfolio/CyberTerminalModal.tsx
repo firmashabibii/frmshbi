@@ -359,6 +359,11 @@ export function CyberTerminalModal() {
   };
 
   const handleKeyDownInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (isSnakeActive && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
+      // Do not interfere with snake game navigation
+      return;
+    }
+
     if (e.key === "ArrowUp") {
       e.preventDefault();
       if (cmdHistory.length === 0) return;
@@ -494,7 +499,18 @@ export function CyberTerminalModal() {
               {/* Terminal Body */}
               <div
                 className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 text-xs sm:text-sm text-slate-200"
-                onClick={() => inputRef.current?.focus()}
+                onClick={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (
+                    target.closest("button") ||
+                    target.closest("canvas") ||
+                    target.closest(".snake-game-container") ||
+                    target.closest("a")
+                  ) {
+                    return;
+                  }
+                  inputRef.current?.focus();
+                }}
               >
                 {/* Welcome Message */}
                 <div className="space-y-1.5 text-slate-400 pb-2 border-b border-white/5">

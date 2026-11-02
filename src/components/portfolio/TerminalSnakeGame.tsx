@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Play, RotateCcw, X, Trophy } from "lucide-react";
+import { RotateCcw, X, Trophy } from "lucide-react";
 
 interface TerminalSnakeGameProps {
   onExit: (finalScore: number) => void;
@@ -9,7 +9,7 @@ interface TerminalSnakeGameProps {
 
 const GRID_COLS = 18;
 const GRID_ROWS = 14;
-const CELL_SIZE = 18; // Canvas logical size: 324 x 252
+const CELL_SIZE = 18; // Logical arena: 324 x 252
 
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 interface Point {
@@ -17,108 +17,173 @@ interface Point {
   y: number;
 }
 
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+) {
+  if (typeof ctx.roundRect === "function") {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
 export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalSnakeGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Game state refs for instant loop access
-  const snakeRef = useRef<Point[]>([
+  // Decoupled refs for the 60fps / requestAnimationFrame engine
+  const soundEnabledRef = useRef(soundEnabled);
+  soundEnabledRef.current = soundEnabled;
+
+  const playSoundRef = useRef(playSound);
+  playSoundRef.current = playSound;
+
+  const highScoreRef = useRef(highScore);
+  highScoreRef.current = highScore;
+
+  const scoreRef = useRef(0);
+  const isGameOverRef = useRef(false);
+  const isPausedRef = useRef(false);
+
+  const initialSnake: Point[] = [
     { x: 5, y: 7 },
     { x: 4, y: 7 },
     { x: 3, y: 7 },
-  ]);
+  ];
+  const snakeRef = useRef<Point[]>([...initialSnake]);
   const dirRef = useRef<Direction>("RIGHT");
   const nextDirRef = useRef<Direction>("RIGHT");
   const foodRef = useRef<Point>({ x: 12, y: 7 });
-  const isGameOverRef = useRef(false);
-  const isPausedRef = useRef(false);
-  const scoreRef = useRef(0);
 
-  // Load high score from localStorage
+  // Load high score from localStorage once
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("frmshbi_snake_highscore");
-      if (saved) {
-        const val = parseInt(saved, 10);
-        if (!isNaN(val)) setHighScore(val);
+      try {
+        const saved = localStorage.getItem("frmshbi_snake_highscore");
+        if (saved) {
+          const val = parseInt(saved, 10);
+          if (!isNaN(val)) {
+            setHighScore(val);
+            highScoreRef.current = val;
+          }
+        }
+      } catch {
+        // Ignore localStorage restrictions
       }
     }
   }, []);
 
-  const spawnFood = useCallback((): Point => {
-    const snake = snakeRef.current;
-    let newFood: Point;
-    let collision = true;
-    while (collision) {
-      newFood = {
-        x: Math.floor(Math.random() * GRID_COLS),
-        y: Math.floor(Math.random() * GRID_ROWS),
-      };
-      // eslint-disable-next-line @typescript-eslint/no-loop-func
-      collision = snake.some((seg) => seg.x === newFood.x && seg.y === newFood.y);
+  const spawnFood = useCallback((currentSnake: Point[]): Point => {
+    const freeSpots: Point[] = [];
+    for (let x = 0; x < GRID_COLS; x++) {
+      for (let y = 0; y < GRID_ROWS; y++) {
+        if (!currentSnake.some((s) => s.x === x && s.y === y)) {
+          freeSpots.push({ x, y });
+        }
+      }
     }
-    return newFood!;
+    if (freeSpots.length === 0) return { x: 0, y: 0 };
+    return freeSpots[Math.floor(Math.random() * freeSpots.length)];
   }, []);
 
   const restartGame = useCallback(() => {
-    snakeRef.current = [
+    const freshSnake = [
       { x: 5, y: 7 },
       { x: 4, y: 7 },
       { x: 3, y: 7 },
     ];
+    snakeRef.current = freshSnake;
     dirRef.current = "RIGHT";
     nextDirRef.current = "RIGHT";
     scoreRef.current = 0;
     setScore(0);
-    setIsGameOver(false);
-    isGameOverRef.current = false;
-    setIsPaused(false);
+    foodRef.current = spawnFood(freshSnake);
     isPausedRef.current = false;
-    foodRef.current = spawnFood();
-    if (soundEnabled) playSound(600, "sine", 0.05);
-  }, [playSound, soundEnabled, spawnFood]);
+    setIsPaused(false);
+    isGameOverRef.current = false;
+    setIsGameOver(false);
 
-  const changeDirection = useCallback((newDir: Direction) => {
-    const current = dirRef.current;
-    if (newDir === "UP" && current !== "DOWN") nextDirRef.current = "UP";
-    if (newDir === "DOWN" && current !== "UP") nextDirRef.current = "DOWN";
-    if (newDir === "LEFT" && current !== "RIGHT") nextDirRef.current = "LEFT";
-    if (newDir === "RIGHT" && current !== "LEFT") nextDirRef.current = "RIGHT";
-  }, []);
+    if (soundEnabledRef.current) {
+      playSoundRef.current(650, "sine", 0.05);
+    }
+  }, [spawnFood]);
 
-  // Keyboard navigation listener
+  const changeDirection = useCallback(
+    (newDir: Direction) => {
+      if (isGameOverRef.current) {
+        restartGame();
+        return;
+      }
+      const current = dirRef.current;
+      if (newDir === "UP" && current !== "DOWN") nextDirRef.current = "UP";
+      if (newDir === "DOWN" && current !== "UP") nextDirRef.current = "DOWN";
+      if (newDir === "LEFT" && current !== "RIGHT") nextDirRef.current = "LEFT";
+      if (newDir === "RIGHT" && current !== "LEFT") nextDirRef.current = "RIGHT";
+    },
+    [restartGame]
+  );
+
+  // Keyboard navigation listener (active only when snake game is loaded)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
-        e.preventDefault(); // Prevent modal/page scroll
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "Enter"].includes(e.code)) {
+        e.preventDefault();
       }
 
       switch (e.code) {
         case "ArrowUp":
         case "KeyW":
-          changeDirection("UP");
+          if (isGameOverRef.current) restartGame();
+          else changeDirection("UP");
           break;
         case "ArrowDown":
         case "KeyS":
-          changeDirection("DOWN");
+          if (isGameOverRef.current) restartGame();
+          else changeDirection("DOWN");
           break;
         case "ArrowLeft":
         case "KeyA":
-          changeDirection("LEFT");
+          if (isGameOverRef.current) restartGame();
+          else changeDirection("LEFT");
           break;
         case "ArrowRight":
         case "KeyD":
-          changeDirection("RIGHT");
+          if (isGameOverRef.current) restartGame();
+          else changeDirection("RIGHT");
           break;
         case "Space":
-          setIsPaused((p) => {
-            isPausedRef.current = !p;
-            return !p;
-          });
+          if (isGameOverRef.current) {
+            restartGame();
+          } else {
+            setIsPaused((p) => {
+              const next = !p;
+              isPausedRef.current = next;
+              return next;
+            });
+          }
+          break;
+        case "Enter":
+          if (isGameOverRef.current) {
+            restartGame();
+          }
           break;
         case "KeyR":
           restartGame();
@@ -132,114 +197,131 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [changeDirection, restartGame]);
 
-  // Main game tick & draw loop
+  // Main Render & Loop Engine (requestAnimationFrame with timer gating)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animTimer: NodeJS.Timeout;
+    let animId: number;
+    let lastTime = performance.now();
+    const TICK_INTERVAL = 110; // ms per move
 
-    const gameTick = () => {
-      if (isGameOverRef.current || isPausedRef.current) {
-        animTimer = setTimeout(gameTick, 110);
-        return;
-      }
-
-      // 1. Move Snake
+    const stepGame = () => {
       dirRef.current = nextDirRef.current;
-      const head = { ...snakeRef.current[0] };
+      const currentSnake = snakeRef.current;
+      const head = { ...currentSnake[0] };
 
       if (dirRef.current === "UP") head.y -= 1;
-      if (dirRef.current === "DOWN") head.y += 1;
-      if (dirRef.current === "LEFT") head.x -= 1;
-      if (dirRef.current === "RIGHT") head.x += 1;
+      else if (dirRef.current === "DOWN") head.y += 1;
+      else if (dirRef.current === "LEFT") head.x -= 1;
+      else if (dirRef.current === "RIGHT") head.x += 1;
 
-      // 2. Check Wall Collision
+      // 1. Wall collision
       if (head.x < 0 || head.x >= GRID_COLS || head.y < 0 || head.y >= GRID_ROWS) {
-        handleGameOver();
+        triggerGameOver();
         return;
       }
 
-      // 3. Check Self Collision
-      if (snakeRef.current.some((seg) => seg.x === head.x && seg.y === head.y)) {
-        handleGameOver();
-        return;
+      // 2. Self collision (check segments 1 to end)
+      for (let i = 1; i < currentSnake.length; i++) {
+        if (currentSnake[i].x === head.x && currentSnake[i].y === head.y) {
+          triggerGameOver();
+          return;
+        }
       }
 
-      // 4. Check Food
-      const newSnake = [head, ...snakeRef.current];
-      if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
+      // 3. Move snake forward
+      const newSnake = [head, ...currentSnake];
+
+      // 4. Food collision check
+      const food = foodRef.current;
+      if (head.x === food.x && head.y === food.y) {
         const newScore = scoreRef.current + 10;
         scoreRef.current = newScore;
         setScore(newScore);
 
-        if (newScore > highScore) {
+        if (newScore > highScoreRef.current) {
+          highScoreRef.current = newScore;
           setHighScore(newScore);
-          localStorage.setItem("frmshbi_snake_highscore", newScore.toString());
+          try {
+            localStorage.setItem("frmshbi_snake_highscore", newScore.toString());
+          } catch {}
         }
 
-        if (soundEnabled) playSound(880, "sine", 0.05);
-        foodRef.current = spawnFood();
+        if (soundEnabledRef.current) {
+          playSoundRef.current(880, "sine", 0.05);
+        }
+
+        foodRef.current = spawnFood(newSnake);
       } else {
         newSnake.pop();
       }
 
       snakeRef.current = newSnake;
-
-      // 5. Draw Frame
-      drawGame(ctx);
-
-      animTimer = setTimeout(gameTick, 110);
     };
 
-    const handleGameOver = () => {
+    const triggerGameOver = () => {
       isGameOverRef.current = true;
       setIsGameOver(true);
-      if (soundEnabled) playSound(180, "sawtooth", 0.2);
-      drawGame(ctx);
+      if (soundEnabledRef.current) {
+        playSoundRef.current(200, "sawtooth", 0.18);
+      }
     };
 
-    const drawGame = (c: CanvasRenderingContext2D) => {
+    const drawFrame = () => {
       const w = GRID_COLS * CELL_SIZE;
       const h = GRID_ROWS * CELL_SIZE;
 
-      // Clear arena
-      c.fillStyle = "#05080E";
-      c.fillRect(0, 0, w, h);
+      // Clear dark background
+      ctx.fillStyle = "#05080E";
+      ctx.fillRect(0, 0, w, h);
 
-      // Subtle grid mesh
-      c.strokeStyle = "rgba(0, 210, 255, 0.06)";
-      c.lineWidth = 1;
+      // Subtle cyber grid lines
+      ctx.strokeStyle = "rgba(0, 210, 255, 0.06)";
+      ctx.lineWidth = 1;
       for (let x = 0; x <= w; x += CELL_SIZE) {
-        c.beginPath();
-        c.moveTo(x, 0);
-        c.lineTo(x, h);
-        c.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
       }
       for (let y = 0; y <= h; y += CELL_SIZE) {
-        c.beginPath();
-        c.moveTo(0, y);
-        c.lineTo(w, y);
-        c.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
       }
 
       // Draw Food (Pulsing glowing node)
       const f = foodRef.current;
-      c.save();
-      c.shadowColor = "#00d2ff";
-      c.shadowBlur = 12;
-      c.fillStyle = "#00d2ff";
-      c.beginPath();
-      c.arc(f.x * CELL_SIZE + CELL_SIZE / 2, f.y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2.5, 0, Math.PI * 2);
-      c.fill();
-      // Center highlight core
-      c.fillStyle = "#ffffff";
-      c.beginPath();
-      c.arc(f.x * CELL_SIZE + CELL_SIZE / 2, f.y * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 5, 0, Math.PI * 2);
-      c.fill();
-      c.restore();
+      ctx.save();
+      ctx.shadowColor = "#00d2ff";
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = "#00d2ff";
+      ctx.beginPath();
+      ctx.arc(
+        f.x * CELL_SIZE + CELL_SIZE / 2,
+        f.y * CELL_SIZE + CELL_SIZE / 2,
+        CELL_SIZE / 2.6,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      // White specular core
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(
+        f.x * CELL_SIZE + CELL_SIZE / 2,
+        f.y * CELL_SIZE + CELL_SIZE / 2,
+        CELL_SIZE / 5.5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.restore();
 
       // Draw Snake Body & Head
       const snake = snakeRef.current;
@@ -247,50 +329,62 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
         const px = seg.x * CELL_SIZE;
         const py = seg.y * CELL_SIZE;
         const pad = 1.5;
+        const boxSize = CELL_SIZE - pad * 2;
 
         if (idx === 0) {
-          // Snake Head (Electric Cyan with Specular Eye)
-          c.save();
-          c.shadowColor = "rgba(0, 210, 255, 0.8)";
-          c.shadowBlur = 10;
-          c.fillStyle = "#00d2ff";
-          c.beginPath();
-          c.roundRect(px + pad, py + pad, CELL_SIZE - pad * 2, CELL_SIZE - pad * 2, 5);
-          c.fill();
+          // Head (Electric Cyan with eyes)
+          ctx.save();
+          ctx.shadowColor = "rgba(0, 210, 255, 0.85)";
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = "#00d2ff";
+          drawRoundedRect(ctx, px + pad, py + pad, boxSize, boxSize, 5);
 
-          // Small eyes
-          c.fillStyle = "#060A12";
+          // Eyes
+          ctx.fillStyle = "#050914";
           if (dirRef.current === "RIGHT") {
-            c.fillRect(px + CELL_SIZE - 5, py + 4, 2, 2);
-            c.fillRect(px + CELL_SIZE - 5, py + CELL_SIZE - 6, 2, 2);
+            ctx.fillRect(px + CELL_SIZE - 5, py + 4, 2, 2);
+            ctx.fillRect(px + CELL_SIZE - 5, py + CELL_SIZE - 6, 2, 2);
           } else if (dirRef.current === "LEFT") {
-            c.fillRect(px + 3, py + 4, 2, 2);
-            c.fillRect(px + 3, py + CELL_SIZE - 6, 2, 2);
+            ctx.fillRect(px + 3, py + 4, 2, 2);
+            ctx.fillRect(px + 3, py + CELL_SIZE - 6, 2, 2);
           } else if (dirRef.current === "UP") {
-            c.fillRect(px + 4, py + 3, 2, 2);
-            c.fillRect(px + CELL_SIZE - 6, py + 3, 2, 2);
+            ctx.fillRect(px + 4, py + 3, 2, 2);
+            ctx.fillRect(px + CELL_SIZE - 6, py + 3, 2, 2);
           } else {
-            c.fillRect(px + 4, py + CELL_SIZE - 5, 2, 2);
-            c.fillRect(px + CELL_SIZE - 6, py + CELL_SIZE - 5, 2, 2);
+            ctx.fillRect(px + 4, py + CELL_SIZE - 5, 2, 2);
+            ctx.fillRect(px + CELL_SIZE - 6, py + CELL_SIZE - 5, 2, 2);
           }
-          c.restore();
+          ctx.restore();
         } else {
-          // Snake Body (Cyan to Cobalt Fade)
+          // Body segments
           const ratio = idx / Math.max(1, snake.length);
-          c.fillStyle = ratio < 0.5 ? "#0099dd" : "#0066b1";
-          c.beginPath();
-          c.roundRect(px + pad, py + pad, CELL_SIZE - pad * 2, CELL_SIZE - pad * 2, 3);
-          c.fill();
+          ctx.fillStyle = ratio < 0.5 ? "#0099dd" : "#0066b1";
+          drawRoundedRect(ctx, px + pad, py + pad, boxSize, boxSize, 3);
         }
       });
     };
 
-    // First frame render
-    drawGame(ctx);
-    animTimer = setTimeout(gameTick, 110);
+    const loop = (currentTime: number) => {
+      animId = requestAnimationFrame(loop);
 
-    return () => clearTimeout(animTimer);
-  }, [highScore, playSound, soundEnabled, spawnFood]);
+      const elapsed = currentTime - lastTime;
+      if (elapsed >= TICK_INTERVAL) {
+        lastTime = currentTime - (elapsed % TICK_INTERVAL);
+
+        if (!isGameOverRef.current && !isPausedRef.current) {
+          stepGame();
+        }
+        drawFrame();
+      }
+    };
+
+    drawFrame();
+    animId = requestAnimationFrame(loop);
+
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+    };
+  }, [spawnFood]);
 
   // Touch Swipe detection on Canvas
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -317,7 +411,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
   };
 
   return (
-    <div className="p-3 sm:p-4 my-2 rounded-xl bg-[#06090F] border border-[#00d2ff]/30 space-y-3 font-mono select-none">
+    <div className="snake-game-container p-3 sm:p-4 my-2 rounded-xl bg-[#06090F] border border-[#00d2ff]/30 space-y-3 font-mono select-none outline-none" tabIndex={0}>
       {/* Game Top Status Bar */}
       <div className="flex items-center justify-between text-xs border-b border-white/10 pb-2">
         <div className="flex items-center gap-2">
@@ -337,7 +431,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
           </span>
           <button
             onClick={() => onExit(scoreRef.current)}
-            className="p-1 text-slate-400 hover:text-rose-400 transition-colors"
+            className="p-1 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
             title="Keluar dari Game"
           >
             <X className="w-4 h-4" />
@@ -358,26 +452,39 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
 
         {/* Game Over Overlay */}
         {isGameOver && (
-          <div className="absolute inset-0 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center gap-2 text-center p-4">
-            <p className="font-orbitron font-black text-rose-500 text-base sm:text-lg tracking-wider">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              restartGame();
+            }}
+            className="absolute inset-0 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center gap-2 text-center p-4 z-20 cursor-pointer"
+          >
+            <p className="font-orbitron font-black text-rose-500 text-base sm:text-lg tracking-wider animate-pulse">
               GAME OVER
             </p>
             <p className="text-xs text-slate-300">
               Final Score: <strong className="text-cyan-400">{score}</strong>
             </p>
             <button
-              onClick={restartGame}
-              className="mt-2 px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-500/30 text-xs font-orbitron font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                restartGame();
+              }}
+              className="mt-2 px-5 py-2 rounded-full bg-cyan-500/20 border-2 border-cyan-400 text-cyan-300 hover:bg-cyan-500/30 text-xs font-orbitron font-bold flex items-center gap-2 transition-all cursor-pointer active:scale-95 shadow-[0_0_15px_rgba(0,210,255,0.4)]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               PLAY AGAIN
             </button>
+            <span className="text-[10px] text-slate-400 mt-1">
+              Press SPACE / ENTER or tap here to replay
+            </span>
           </div>
         )}
 
         {/* Paused Overlay */}
         {isPaused && !isGameOver && (
-          <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
             <p className="font-orbitron font-bold text-cyan-400 text-sm tracking-widest">
               PAUSED [SPACE]
             </p>
@@ -397,7 +504,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
             <button
               type="button"
               onClick={() => changeDirection("UP")}
-              className="w-8 h-8 rounded-md bg-white/5 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold"
+              className="w-9 h-9 rounded-md bg-white/[0.06] border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold cursor-pointer"
             >
               ▲
             </button>
@@ -405,21 +512,21 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
               <button
                 type="button"
                 onClick={() => changeDirection("LEFT")}
-                className="w-8 h-8 rounded-md bg-white/5 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold"
+                className="w-9 h-9 rounded-md bg-white/[0.06] border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold cursor-pointer"
               >
                 ◀
               </button>
               <button
                 type="button"
                 onClick={() => changeDirection("DOWN")}
-                className="w-8 h-8 rounded-md bg-white/5 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold"
+                className="w-9 h-9 rounded-md bg-white/[0.06] border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold cursor-pointer"
               >
                 ▼
               </button>
               <button
                 type="button"
                 onClick={() => changeDirection("RIGHT")}
-                className="w-8 h-8 rounded-md bg-white/5 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold"
+                className="w-9 h-9 rounded-md bg-white/[0.06] border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/20 active:scale-90 flex items-center justify-center text-xs font-bold cursor-pointer"
               >
                 ▶
               </button>
@@ -432,7 +539,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
           <button
             type="button"
             onClick={restartGame}
-            className="px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 text-xs flex items-center gap-1 transition-all cursor-pointer"
+            className="px-3 py-1.5 rounded bg-white/5 border border-white/10 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
           >
             <RotateCcw className="w-3 h-3" />
             Reset
@@ -440,7 +547,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
           <button
             type="button"
             onClick={() => onExit(scoreRef.current)}
-            className="px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:border-rose-400 text-slate-300 hover:text-rose-300 text-xs flex items-center gap-1 transition-all cursor-pointer"
+            className="px-3 py-1.5 rounded bg-white/5 border border-white/10 hover:border-rose-400 text-slate-300 hover:text-rose-300 text-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
           >
             Exit Game
           </button>
