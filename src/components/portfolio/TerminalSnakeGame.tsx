@@ -7,9 +7,9 @@ interface TerminalSnakeGameProps {
   playSound: (freq?: number, type?: OscillatorType, duration?: number) => void;
 }
 
-const GRID_COLS = 18;
+const GRID_COLS = 28;
 const GRID_ROWS = 14;
-const CELL_SIZE = 18; // Logical arena: 324 x 252
+const CELL_SIZE = 20; // Logical arena: 560 x 280 (2:1 Widescreen Rectangle)
 
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 interface Point {
@@ -64,14 +64,14 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
   const isPausedRef = useRef(false);
 
   const initialSnake: Point[] = [
-    { x: 5, y: 7 },
-    { x: 4, y: 7 },
-    { x: 3, y: 7 },
+    { x: 8, y: 7 },
+    { x: 7, y: 7 },
+    { x: 6, y: 7 },
   ];
   const snakeRef = useRef<Point[]>([...initialSnake]);
   const dirRef = useRef<Direction>("RIGHT");
   const nextDirRef = useRef<Direction>("RIGHT");
-  const foodRef = useRef<Point>({ x: 12, y: 7 });
+  const foodRef = useRef<Point>({ x: 20, y: 7 });
 
   // Load high score from localStorage once
   useEffect(() => {
@@ -106,9 +106,9 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
 
   const restartGame = useCallback(() => {
     const freshSnake = [
-      { x: 5, y: 7 },
-      { x: 4, y: 7 },
-      { x: 3, y: 7 },
+      { x: 8, y: 7 },
+      { x: 7, y: 7 },
+      { x: 6, y: 7 },
     ];
     snakeRef.current = freshSnake;
     dirRef.current = "RIGHT";
@@ -274,12 +274,12 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
       const w = GRID_COLS * CELL_SIZE;
       const h = GRID_ROWS * CELL_SIZE;
 
-      // Clear dark background
-      ctx.fillStyle = "#05080E";
+      // 1. Dark cyber arena background
+      ctx.fillStyle = "#04070D";
       ctx.fillRect(0, 0, w, h);
 
-      // Subtle cyber grid lines
-      ctx.strokeStyle = "rgba(0, 210, 255, 0.06)";
+      // 2. Clear bright cyber grid lines ("garis jaring-jaring")
+      ctx.strokeStyle = "rgba(0, 210, 255, 0.16)";
       ctx.lineWidth = 1;
       for (let x = 0; x <= w; x += CELL_SIZE) {
         ctx.beginPath();
@@ -294,11 +294,49 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
         ctx.stroke();
       }
 
-      // Draw Food (Pulsing glowing node)
+      // 3. Glowing electric cyan perimeter wall ("garis pinggir boundary")
+      ctx.save();
+      ctx.strokeStyle = "#00d2ff";
+      ctx.shadowColor = "rgba(0, 210, 255, 0.9)";
+      ctx.shadowBlur = 10;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(1.5, 1.5, w - 3, h - 3);
+
+      // Cyber corner accents on boundary wall
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      const cornerLen = 14;
+      // Top-Left
+      ctx.beginPath();
+      ctx.moveTo(3, 3 + cornerLen);
+      ctx.lineTo(3, 3);
+      ctx.lineTo(3 + cornerLen, 3);
+      ctx.stroke();
+      // Top-Right
+      ctx.beginPath();
+      ctx.moveTo(w - 3 - cornerLen, 3);
+      ctx.lineTo(w - 3, 3);
+      ctx.lineTo(w - 3, 3 + cornerLen);
+      ctx.stroke();
+      // Bottom-Left
+      ctx.beginPath();
+      ctx.moveTo(3, h - 3 - cornerLen);
+      ctx.lineTo(3, h - 3);
+      ctx.lineTo(3 + cornerLen, h - 3);
+      ctx.stroke();
+      // Bottom-Right
+      ctx.beginPath();
+      ctx.moveTo(w - 3 - cornerLen, h - 3);
+      ctx.lineTo(w - 3, h - 3);
+      ctx.lineTo(w - 3, h - 3 - cornerLen);
+      ctx.stroke();
+      ctx.restore();
+
+      // 4. Draw Food (Pulsing glowing node)
       const f = foodRef.current;
       ctx.save();
       ctx.shadowColor = "#00d2ff";
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.fillStyle = "#00d2ff";
       ctx.beginPath();
       ctx.arc(
@@ -323,7 +361,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
       ctx.fill();
       ctx.restore();
 
-      // Draw Snake Body & Head
+      // 5. Draw Snake Body & Head
       const snake = snakeRef.current;
       snake.forEach((seg, idx) => {
         const px = seg.x * CELL_SIZE;
@@ -334,7 +372,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
         if (idx === 0) {
           // Head (Electric Cyan with eyes)
           ctx.save();
-          ctx.shadowColor = "rgba(0, 210, 255, 0.85)";
+          ctx.shadowColor = "rgba(0, 210, 255, 0.9)";
           ctx.shadowBlur = 10;
           ctx.fillStyle = "#00d2ff";
           drawRoundedRect(ctx, px + pad, py + pad, boxSize, boxSize, 5);
@@ -342,17 +380,17 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
           // Eyes
           ctx.fillStyle = "#050914";
           if (dirRef.current === "RIGHT") {
-            ctx.fillRect(px + CELL_SIZE - 5, py + 4, 2, 2);
-            ctx.fillRect(px + CELL_SIZE - 5, py + CELL_SIZE - 6, 2, 2);
+            ctx.fillRect(px + CELL_SIZE - 6, py + 5, 2.5, 2.5);
+            ctx.fillRect(px + CELL_SIZE - 6, py + CELL_SIZE - 7.5, 2.5, 2.5);
           } else if (dirRef.current === "LEFT") {
-            ctx.fillRect(px + 3, py + 4, 2, 2);
-            ctx.fillRect(px + 3, py + CELL_SIZE - 6, 2, 2);
+            ctx.fillRect(px + 4, py + 5, 2.5, 2.5);
+            ctx.fillRect(px + 4, py + CELL_SIZE - 7.5, 2.5, 2.5);
           } else if (dirRef.current === "UP") {
-            ctx.fillRect(px + 4, py + 3, 2, 2);
-            ctx.fillRect(px + CELL_SIZE - 6, py + 3, 2, 2);
+            ctx.fillRect(px + 5, py + 4, 2.5, 2.5);
+            ctx.fillRect(px + CELL_SIZE - 7.5, py + 4, 2.5, 2.5);
           } else {
-            ctx.fillRect(px + 4, py + CELL_SIZE - 5, 2, 2);
-            ctx.fillRect(px + CELL_SIZE - 6, py + CELL_SIZE - 5, 2, 2);
+            ctx.fillRect(px + 5, py + CELL_SIZE - 6, 2.5, 2.5);
+            ctx.fillRect(px + CELL_SIZE - 7.5, py + CELL_SIZE - 6, 2.5, 2.5);
           }
           ctx.restore();
         } else {
@@ -411,9 +449,9 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
   };
 
   return (
-    <div className="snake-game-container p-3 sm:p-4 my-2 rounded-xl bg-[#06090F] border border-[#00d2ff]/30 space-y-3 font-mono select-none outline-none" tabIndex={0}>
+    <div className="snake-game-container p-3 sm:p-4 my-2 rounded-2xl bg-[#06090F] border border-[#00d2ff]/40 shadow-[0_0_30px_rgba(0,210,255,0.15)] space-y-3 font-mono select-none outline-none" tabIndex={0}>
       {/* Game Top Status Bar */}
-      <div className="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+      <div className="flex items-center justify-between text-xs border-b border-white/10 pb-2 max-w-[640px] mx-auto w-full">
         <div className="flex items-center gap-2">
           <span className="font-orbitron font-bold text-cyan-400 flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -439,15 +477,15 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
         </div>
       </div>
 
-      {/* Canvas Arena Container */}
-      <div className="relative flex justify-center overflow-hidden rounded-lg border border-cyan-500/20 bg-[#05080E]">
+      {/* Canvas Arena Container (Widescreen 2:1 Rectangle with Glowing Cyan Perimeter) */}
+      <div className="relative flex justify-center overflow-hidden rounded-xl border-2 border-[#00d2ff]/70 shadow-[0_0_25px_rgba(0,210,255,0.3)] bg-[#04070D] w-full max-w-[640px] mx-auto">
         <canvas
           ref={canvasRef}
           width={GRID_COLS * CELL_SIZE}
           height={GRID_ROWS * CELL_SIZE}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="w-full max-w-[340px] sm:max-w-[420px] h-auto aspect-[18/14] block cursor-pointer"
+          className="w-full h-auto aspect-[2/1] block cursor-pointer"
         />
 
         {/* Game Over Overlay */}
@@ -493,7 +531,7 @@ export function TerminalSnakeGame({ onExit, soundEnabled, playSound }: TerminalS
       </div>
 
       {/* Touch D-Pad for Mobile & Action Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1 max-w-[640px] mx-auto w-full">
         <div className="text-[11px] text-slate-400 hidden sm:block">
           Controls: <kbd className="text-cyan-300 bg-white/5 px-1 rounded">W/A/S/D</kbd> or <kbd className="text-cyan-300 bg-white/5 px-1 rounded">Arrows</kbd> &bull; Pause: <kbd className="text-cyan-300 bg-white/5 px-1 rounded">Space</kbd>
         </div>
