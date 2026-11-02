@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Terminal, X, Volume2, VolumeX, CornerDownLeft, Sparkles } from "lucide-react";
+import { Terminal, X, Volume2, VolumeX, CornerDownLeft } from "lucide-react";
 
 interface HistoryItem {
   id: string;
@@ -112,7 +112,7 @@ export function CyberTerminalModal() {
                 Fullstack Engineer crafting high-performance, unforgettable digital systems with cutting-edge UI physics and rock-solid backend infrastructure.
               </p>
               <p className="text-slate-400 text-xs">
-                📍 Location: Sumatera Utara, Indonesia &bull; Focus: React, Node.js, IoT, Cloud & UI Engineering
+                LOCATION: Sumatera Utara, Indonesia &bull; FOCUS: React, Node.js, IoT, Cloud & UI Systems
               </p>
             </div>
           );
@@ -283,7 +283,7 @@ export function CyberTerminalModal() {
           if (lower.startsWith("sudo")) {
             out = (
               <p className="text-amber-400 font-mono text-xs">
-                ⚠️ PERMISSION DENIED: System root integrity protected by Firmas Habibi security protocol.
+                [ACCESS DENIED] ROOT RESTRICTED: Operation denied by system security policy.
               </p>
             );
           } else {
@@ -399,13 +399,11 @@ export function CyberTerminalModal() {
 
               {/* Window Header */}
               <div className="relative z-10 flex items-center justify-between px-4 py-3 border-b border-[#00d2ff]/25 bg-[#0A0E17]">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-rose-500/80 cursor-pointer" onClick={() => setIsOpen(false)} title="Close" />
-                  <span className="w-3 h-3 rounded-full bg-amber-500/80" />
-                  <span className="w-3 h-3 rounded-full bg-cyan-500/80" />
-                  <span className="ml-2 font-orbitron font-bold text-xs uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
+                  <Terminal className="w-4 h-4 text-[#00d2ff]" />
+                  <span className="font-orbitron font-bold text-xs uppercase tracking-wider text-slate-200 flex items-center gap-2">
                     frmshbi // dev-cli
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#00d2ff]" />
                   </span>
                 </div>
 
@@ -429,8 +427,8 @@ export function CyberTerminalModal() {
 
               {/* Quick Command Pills (Touch-Friendly for Mobile) */}
               <div className="relative z-10 flex items-center gap-1.5 px-4 py-2 border-b border-white/5 bg-[#090D14] overflow-x-auto text-[11px] no-scrollbar">
-                <span className="text-slate-500 shrink-0 flex items-center gap-1 font-orbitron text-[10px]">
-                  <Sparkles className="w-3 h-3 text-cyan-400" /> QUICK:
+                <span className="text-slate-500 shrink-0 font-orbitron text-[10px] uppercase tracking-wider font-semibold">
+                  COMMANDS //
                 </span>
                 {quickPills.map((pill) => (
                   <button
@@ -514,3 +512,4 @@ export function CyberTerminalModal() {
     </>
   );
 }
+

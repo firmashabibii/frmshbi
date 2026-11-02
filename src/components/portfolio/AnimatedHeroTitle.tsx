@@ -7,7 +7,7 @@ const WORDS = [
   { id: "w3", text: "FRMSHBI", chars: ["F", "R", "M", "S", "H", "B", "I"] },
 ];
 
-const CYBER_GLYPHS = "01#$*+<>~%&!ΞΔΨ7";
+const CYBER_GLYPHS = "0123456789ABCDEF#$<>/*_";
 const ALL_CHARS = WORDS.flatMap((w) => w.chars);
 
 export function AnimatedHeroTitle() {
