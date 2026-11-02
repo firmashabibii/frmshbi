@@ -13,7 +13,19 @@ const ALL_CHARS = WORDS.flatMap((w) => w.chars);
 export function AnimatedHeroTitle() {
   const [displayedChars, setDisplayedChars] = useState<string[]>(ALL_CHARS);
   const [isScrambling, setIsScrambling] = useState(false);
+  const [canHover, setCanHover] = useState(false);
   const animTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Detect genuine hover support (desktop mouse) vs mobile touch
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+      setCanHover(mq.matches);
+      const handler = (e: MediaQueryListEvent) => setCanHover(e.matches);
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    }
+  }, []);
 
   const runScramble = useCallback(() => {
     if (isScrambling) return;
@@ -48,6 +60,7 @@ export function AnimatedHeroTitle() {
     return () => clearInterval(interval);
   }, [isScrambling]);
 
+  // Initial reveal decode on mount
   useEffect(() => {
     animTimeoutRef.current = setTimeout(() => {
       runScramble();
@@ -58,14 +71,25 @@ export function AnimatedHeroTitle() {
     };
   }, []);
 
+  // Periodic autonomous cyber-glitch loop (perfect for mobile where there is no cursor)
+  useEffect(() => {
+    const loopInterval = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        runScramble();
+      }
+    }, 12000);
+
+    return () => clearInterval(loopInterval);
+  }, [runScramble]);
+
   let globalCharIndex = 0;
 
   return (
     <div className="relative inline-block mx-auto max-w-full">
-      {/* 1. Laser Shimmer Light Sweep */}
-      <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden mix-blend-screen opacity-70">
+      {/* 1. Laser Shimmer Light Sweep (Runs continuously on both Mobile & PC) */}
+      <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden mix-blend-screen opacity-75">
         <motion.div
-          className="h-full w-40 sm:w-60 bg-gradient-to-r from-transparent via-[rgba(0,210,255,0.45)] to-transparent -skew-x-20"
+          className="h-full w-36 sm:w-64 bg-gradient-to-r from-transparent via-[rgba(0,210,255,0.45)] to-transparent -skew-x-20"
           animate={{ x: ["-150%", "350%"] }}
           transition={{
             duration: 3.8,
@@ -76,12 +100,12 @@ export function AnimatedHeroTitle() {
         />
       </div>
 
-      {/* 2. Interactive Animated Title */}
+      {/* 2. Interactive Title (Tap-friendly on Mobile, Hover-interactive on PC) */}
       <h1
         aria-label="Hi, I'm frmshbi"
-        className="hero-heading font-orbitron font-black uppercase tracking-tight leading-none w-full text-center text-4xl sm:text-[6.5vw] md:text-[7vw] lg:text-[7.5vw] select-none flex flex-wrap justify-center items-center gap-x-[0.32em] gap-y-[0.1em] pointer-events-auto cursor-pointer group"
+        className="hero-heading font-orbitron font-black uppercase tracking-tight leading-none w-full text-center text-4xl sm:text-[6.5vw] md:text-[7vw] lg:text-[7.5vw] select-none flex flex-wrap justify-center items-center gap-x-[0.32em] gap-y-[0.1em] pointer-events-auto cursor-pointer active:opacity-90 transition-opacity"
         onClick={runScramble}
-        title="Tap or click to re-decode"
+        title="Tap or click to trigger cyber decode"
       >
         {WORDS.map((word) => (
           <span
@@ -121,15 +145,23 @@ export function AnimatedHeroTitle() {
                       delay: index * 0.14,
                     },
                   }}
-                  whileHover={{
-                    y: -12,
-                    scale: 1.2,
-                    filter:
-                      "drop-shadow(0 0 35px rgba(0, 210, 255, 1)) drop-shadow(0 0 10px #ffffff) brightness(1.3)",
-                    transition: { type: "spring", stiffness: 500, damping: 15 },
-                  }}
+                  // Hover enabled strictly for desktop mouse users to prevent sticky-hover on mobile touch screens
+                  whileHover={
+                    canHover
+                      ? {
+                          y: -12,
+                          scale: 1.2,
+                          filter:
+                            "drop-shadow(0 0 35px rgba(0, 210, 255, 1)) drop-shadow(0 0 10px #ffffff) brightness(1.3)",
+                          transition: { type: "spring", stiffness: 500, damping: 15 },
+                        }
+                      : undefined
+                  }
+                  // Responsive touch/tap feedback for mobile & desktop
                   whileTap={{
-                    scale: 0.9,
+                    scale: 0.92,
+                    filter: "drop-shadow(0 0 28px rgba(0, 210, 255, 0.9)) brightness(1.2)",
+                    transition: { duration: 0.1 },
                   }}
                 >
                   {currentChar}
