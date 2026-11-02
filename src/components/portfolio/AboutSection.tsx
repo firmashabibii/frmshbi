@@ -297,7 +297,7 @@ export function AboutSection() {
 
       {/* Section Header */}
       <div className="relative z-10 flex flex-col items-center text-center gap-8 max-w-3xl">
-        <h2 className="hero-heading font-black uppercase leading-none" style={{ fontSize: "clamp(2.5rem, 10vw, 120px)" }}>
+        <h2 className="hero-heading font-orbitron font-black uppercase leading-none" style={{ fontSize: "clamp(2rem, 6vw, 72px)", lineHeight: 1 }}>
           About me
         </h2>
         <AnimatedText

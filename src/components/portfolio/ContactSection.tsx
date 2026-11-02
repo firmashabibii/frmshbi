@@ -30,8 +30,8 @@ export function ContactSection() {
       <div className="max-w-6xl mx-auto">
         <FadeIn y={30}>
           <h2
-            className="hero-heading font-black uppercase leading-none text-center md:text-left mb-12 md:mb-16"
-            style={{ fontSize: "clamp(2.5rem, 9vw, 110px)" }}
+            className="hero-heading font-orbitron font-black uppercase leading-none text-center md:text-left mb-12 md:mb-16"
+            style={{ fontSize: "clamp(2rem, 6vw, 72px)", lineHeight: 1 }}
           >
             Contact
           </h2>

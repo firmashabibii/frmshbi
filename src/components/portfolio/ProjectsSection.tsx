@@ -110,7 +110,7 @@ export function ProjectsSection() {
       id="projects"
       className="relative rounded-t-[30px] sm:rounded-t-[60px] -mt-8 sm:-mt-12 z-10 px-6 md:px-12 py-16 sm:py-24"
     >
-      <h2 className="hero-heading font-black uppercase text-center mb-12 sm:mb-20 leading-none" style={{ fontSize: "clamp(2.5rem, 10vw, 120px)" }}>
+      <h2 className="hero-heading font-orbitron font-black uppercase text-center mb-12 sm:mb-16 leading-none" style={{ fontSize: "clamp(2rem, 6vw, 72px)", lineHeight: 1 }}>
         Projects
       </h2>
       <div ref={containerRef} className="relative max-w-6xl mx-auto flex flex-col gap-12 sm:gap-20 md:gap-32">
