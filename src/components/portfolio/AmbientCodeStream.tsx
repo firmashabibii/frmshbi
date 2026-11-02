@@ -43,7 +43,7 @@ export function AmbientCodeStream() {
       for (let i = 0; i < cols; i++) {
         // Distribute drops across the entire screen right from the start
         drops[i] = Math.floor(Math.random() * (height / fontSize));
-        speeds[i] = 0.8 + Math.random() * 0.7; // Variable organic flow speed
+        speeds[i] = 0.25 + Math.random() * 0.25; // Calm, slow, elegant speed
       }
 
       // Initial pitch dark fill
@@ -72,8 +72,8 @@ export function AmbientCodeStream() {
       if (elapsed < FPS_INTERVAL) return;
       lastTime = currentTime - (elapsed % FPS_INTERVAL);
 
-      // Smooth trailing fade into background (#080B10)
-      ctx.fillStyle = "rgba(8, 11, 16, 0.09)";
+      // Smooth trailing fade into background (#080B10) with gentle persistence
+      ctx.fillStyle = "rgba(8, 11, 16, 0.05)";
       ctx.fillRect(0, 0, width, height);
 
       ctx.font = `${fontSize}px "Space Grotesk", "Orbitron", monospace`;
@@ -83,7 +83,7 @@ export function AmbientCodeStream() {
         // 1. Pick a random code token
         const token = CODE_TOKENS[Math.floor(Math.random() * CODE_TOKENS.length)];
         const x = i * colWidth + colWidth / 2;
-        const y = drops[i] * fontSize;
+        const y = Math.floor(drops[i]) * fontSize;
 
         // 2. Draw glowing head character
         // Occasional bright white-cyan spark at head
@@ -96,13 +96,13 @@ export function AmbientCodeStream() {
         // Reset shadow for performance
         ctx.shadowBlur = 0;
 
-        // 3. Advance drop
+        // 3. Advance drop calmly
         drops[i] += speeds[i];
 
         // 4. Reset drop to top with randomized delay when it hits the bottom
-        if (y > height && Math.random() > 0.975) {
-          drops[i] = -Math.floor(Math.random() * 15);
-          speeds[i] = 0.8 + Math.random() * 0.7;
+        if (y > height && Math.random() > 0.98) {
+          drops[i] = -Math.floor(Math.random() * 12);
+          speeds[i] = 0.25 + Math.random() * 0.25;
         }
       }
     };
