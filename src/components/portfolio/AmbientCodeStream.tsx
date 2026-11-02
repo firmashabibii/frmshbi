@@ -4,10 +4,10 @@ import { useEffect, useRef } from "react";
 const CODE_TOKENS = [
   "const", "async", "await", "function", "return", "import", "export",
   "interface", "type", "0x4F", "0xFF", "0x7F", "0x1A", "200", "404", "500",
-  "HTTP/2", "TLS", "GET", "POST", "API", "IoT", "wss://", "git", "npm", "dev",
+  "HTTP", "TLS", "GET", "POST", "API", "IoT", "wss://", "git", "npm", "dev",
   "void", "null", "true", "false", "new", "class", "try", "catch", "throw",
   "=>", "===", "&&", "||", "</>", "{", "}", "[", "]", "(", ")", ";", ":",
-  "0", "1", "A", "F", "#", "$", "*", "+", "SHA256", "docker", "kernel"
+  "0", "1", "A", "F", "#", "$", "*", "+", "SHA256", "docker", "kernel", "req", "res"
 ];
 
 export function AmbientCodeStream() {
@@ -24,39 +24,29 @@ export function AmbientCodeStream() {
     let height = (canvas.height = window.innerHeight);
 
     const isMobile = window.innerWidth < 768;
-    const fontSize = isMobile ? 11 : 12;
-    const colSpacing = isMobile ? 28 : 24;
-    let cols = Math.floor(width / colSpacing);
+    const fontSize = isMobile ? 12 : 14;
+    const colWidth = isMobile ? 22 : 26;
+    let cols = Math.floor(width / colWidth);
 
-    interface Stream {
-      x: number;
-      y: number;
-      speed: number;
-      active: boolean;
-      length: number;
-      history: { char: string; y: number }[];
-    }
-
-    let streams: Stream[] = [];
+    // Track the vertical Y index (in rows) of each column
+    let drops: number[] = [];
+    // Speed multiplier per column for organic parallax depth
+    let speeds: number[] = [];
 
     const initStreams = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      cols = Math.floor(width / colSpacing);
+      cols = Math.floor(width / colWidth);
 
-      streams = [];
+      drops = [];
+      speeds = [];
       for (let i = 0; i < cols; i++) {
-        streams.push({
-          x: i * colSpacing + Math.floor(colSpacing / 2),
-          y: Math.random() * -height * 1.5,
-          speed: 0.75 + Math.random() * 0.9, // Gentle, calm speed
-          active: Math.random() > 0.4, // Spaced out columns for airy, breathable density
-          length: 6 + Math.floor(Math.random() * 10),
-          history: [],
-        });
+        // Distribute drops across the entire screen right from the start
+        drops[i] = Math.floor(Math.random() * (height / fontSize));
+        speeds[i] = 0.8 + Math.random() * 0.7; // Variable organic flow speed
       }
 
-      // Initial pitch dark fill (#080B10)
+      // Initial pitch dark fill
       ctx.fillStyle = "#080B10";
       ctx.fillRect(0, 0, width, height);
     };
@@ -71,71 +61,48 @@ export function AmbientCodeStream() {
     window.addEventListener("resize", handleResize);
 
     let lastTime = performance.now();
-    const FPS_INTERVAL = 1000 / 30; // 30 FPS for silky, battery-friendly ambient background
+    const FPS_INTERVAL = 1000 / 30; // 30 FPS smooth & lightweight
 
     const render = (currentTime: number) => {
       animId = requestAnimationFrame(render);
 
-      // Skip rendering if page is backgrounded in browser
       if (typeof document !== "undefined" && document.hidden) return;
 
       const elapsed = currentTime - lastTime;
       if (elapsed < FPS_INTERVAL) return;
       lastTime = currentTime - (elapsed % FPS_INTERVAL);
 
-      // Deep dark fade layer (#080B10 with 14% alpha for soft, dim trails)
-      ctx.fillStyle = "rgba(8, 11, 16, 0.14)";
+      // Smooth trailing fade into background (#080B10)
+      ctx.fillStyle = "rgba(8, 11, 16, 0.09)";
       ctx.fillRect(0, 0, width, height);
 
       ctx.font = `${fontSize}px "Space Grotesk", "Orbitron", monospace`;
       ctx.textAlign = "center";
 
-      for (let i = 0; i < streams.length; i++) {
-        const stream = streams[i];
-        if (!stream.active) {
-          // Slowly activate dormant columns randomly
-          if (Math.random() < 0.006) {
-            stream.active = true;
-            stream.y = Math.random() * -60;
-            stream.speed = 0.75 + Math.random() * 0.9;
-          }
-          continue;
-        }
-
+      for (let i = 0; i < cols; i++) {
+        // 1. Pick a random code token
         const token = CODE_TOKENS[Math.floor(Math.random() * CODE_TOKENS.length)];
+        const x = i * colWidth + colWidth / 2;
+        const y = drops[i] * fontSize;
 
-        // 1. Soft, dim leading character ("tetapi tidak terang")
-        ctx.fillStyle = "rgba(0, 210, 255, 0.17)";
-        ctx.shadowColor = "rgba(0, 210, 255, 0.35)";
-        ctx.shadowBlur = 4;
-        ctx.fillText(token, stream.x, stream.y);
+        // 2. Draw glowing head character
+        // Occasional bright white-cyan spark at head
+        const isBrightLead = Math.random() > 0.82;
+        ctx.fillStyle = isBrightLead ? "#ffffff" : "#00d2ff";
+        ctx.shadowColor = "#00d2ff";
+        ctx.shadowBlur = 6;
+        ctx.fillText(token, x, y);
 
-        // Reset shadow for trail performance
+        // Reset shadow for performance
         ctx.shadowBlur = 0;
 
-        // 2. Trailing subtle ghost character
-        if (stream.history.length > 0) {
-          const prev = stream.history[stream.history.length - 1];
-          ctx.fillStyle = "rgba(0, 102, 177, 0.05)";
-          ctx.fillText(prev.char, stream.x, prev.y);
-        }
+        // 3. Advance drop
+        drops[i] += speeds[i];
 
-        stream.history.push({ char: token, y: stream.y });
-        if (stream.history.length > stream.length) {
-          stream.history.shift();
-        }
-
-        // Advance stream downwards
-        stream.y += fontSize * stream.speed;
-
-        // Reset when stream reaches beyond bottom
-        if (stream.y > height + 60) {
-          stream.y = Math.random() * -100;
-          stream.speed = 0.75 + Math.random() * 0.9;
-          stream.history = [];
-          if (Math.random() < 0.3) {
-            stream.active = false;
-          }
+        // 4. Reset drop to top with randomized delay when it hits the bottom
+        if (y > height && Math.random() > 0.975) {
+          drops[i] = -Math.floor(Math.random() * 15);
+          speeds[i] = 0.8 + Math.random() * 0.7;
         }
       }
     };
@@ -153,7 +120,7 @@ export function AmbientCodeStream() {
     <canvas
       ref={canvasRef}
       className="pointer-events-none fixed inset-0 z-0 w-full h-full select-none"
-      style={{ opacity: 0.9 }}
+      style={{ opacity: 0.38 }}
       aria-hidden="true"
     />
   );
